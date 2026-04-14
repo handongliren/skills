@@ -3,8 +3,9 @@
 from __future__ import annotations
 import operator
 import statistics
-from collections.abc import Callable
+from typing import TYPE_CHECKING
 from ..animation import controllers
+from collections.abc import Callable
 
 def contrast(value: tuple[int, int, int], channels: tuple[bool, bool, bool]) -> tuple[int, int, int]: ...
 

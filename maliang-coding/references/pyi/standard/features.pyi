@@ -1,14 +1,15 @@
 """All standard ``Feature`` classes."""
 
 from __future__ import annotations
-from collections.abc import Callable
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from typing_extensions import override
 from ..animation import animations, controllers
 from ..core import virtual
 from ..standard import shapes
 from ..toolbox import utility
 import tkinter
+from collections.abc import Callable
+from typing import Any
 
 class TextFeature(virtual.Feature):
     """Feature of Text."""

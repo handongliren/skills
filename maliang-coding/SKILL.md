@@ -59,7 +59,7 @@ The pyi files are located in `references/pyi/` within this skill directory. Read
 After reading the pyi files, write code that:
 1. **Matches exact signatures**: Use the correct parameter names and types
 2. **Includes proper imports**: Import from the right modules
-3. **Follows maliang patterns**: Use Canvas as parent, proper positioning, etc.
+3. **Follows maliang patterns**: Use Canvas as parent, proper positioning, etc. **And remember that, you needn't use all patterns! Besides, when using Canvas, you must place it on master widget!**
 
 ### Step 4: Explain to the User
 
@@ -223,3 +223,5 @@ root.mainloop()
 ---
 
 **Remember**: Always read the pyi files first to ensure syntactically correct code. The pyi files contain the authoritative function signatures and docstrings that describe each component's purpose and usage.
+
+> Good luck in your coding!

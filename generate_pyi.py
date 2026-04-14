@@ -5,6 +5,7 @@
 
 import ast
 import os
+import sys
 from pathlib import Path
 from typing import List, Optional
 
@@ -241,8 +242,8 @@ def generate_all_pyi_proper():
     生成所有正确的.pyi文件
     """
     
-    maliang_dir = Path("maliang/maliang")
-    output_dir = Path("pyi")
+    maliang_dir = Path(sys.executable).parent / "Lib" / "site-packages" / "maliang"
+    output_dir = Path("maliang-coding/references/pyi")
     
     # 确保输出目录存在
     output_dir.mkdir(parents=True, exist_ok=True)

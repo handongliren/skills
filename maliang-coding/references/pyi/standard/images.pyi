@@ -1,11 +1,12 @@
 """All standard ``Image`` classes."""
 
 from __future__ import annotations
-from typing import Any
+from typing import TYPE_CHECKING
 from typing_extensions import override
 from ..core import virtual
 from ..toolbox import enhanced
 from PIL import Image
+from typing import Any
 
 class StillImage(virtual.Image):
     """A simple still image."""

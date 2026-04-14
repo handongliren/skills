@@ -5,6 +5,7 @@ import tkinter
 import tkinter.colorchooser
 import tkinter.filedialog
 import warnings
+from typing import TYPE_CHECKING
 from collections.abc import Callable, Sequence
 from typing import Any, Literal
 

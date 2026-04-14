@@ -10,11 +10,12 @@ import sys
 import tkinter
 import tkinter.font
 import traceback
-from collections.abc import Callable
-from typing import Any
+from typing import TYPE_CHECKING
 from ..core import configs, virtual
 from . import enhanced
 from PIL import Image
+from collections.abc import Callable
+from typing import Any
 
 class Trigger:
     """Single trigger.

@@ -11,7 +11,8 @@ import math
 import platform
 import sys
 import tkinter
-from typing import Any, ClassVar, Final, Literal
+from typing import TYPE_CHECKING
+from typing import Any, Final, Literal
 
 class _DefaultRootDescriptor:
     """A simple descriptor for ``tkinter._default_root``."""
@@ -31,10 +32,10 @@ class Env:
             startup.
         root (tkinter.Tk): The current default root window. It is READ-ONLY."""
 
-    system: ClassVar[str]
-    theme: ClassVar[Literal['light', 'dark']]
-    gradient_animation: ClassVar[bool]
-    auto_update: ClassVar[bool]
+    system: str
+    theme: Literal['light', 'dark']
+    gradient_animation: bool
+    auto_update: bool
     root = _DefaultRootDescriptor()
     @classmethod
     def reset(cls) -> None: ...
@@ -43,13 +44,13 @@ class Env:
 
 class Font:
     """Configurations for default font.
-
+    
     Attributes:
         family (str): The default font family.
         size (int): The default font size, negative value means size in pixels."""
 
-    family: ClassVar[str]
-    size: ClassVar[int]
+    family: str
+    size: int
     @classmethod
     def reset(cls) -> None: ...
     @staticmethod

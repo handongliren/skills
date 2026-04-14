@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 import copy
-import types
-from typing import Literal
+from typing import TYPE_CHECKING
 from typing_extensions import override
 from ..core import virtual
+import types
+from typing import Literal
 
 class TextStyle(virtual.Style):
     """Style of Text.

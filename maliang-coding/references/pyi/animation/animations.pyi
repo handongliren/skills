@@ -5,12 +5,14 @@ animation classes are best used by direct calls, rather than inheritance.
 """
 
 from __future__ import annotations
-from collections.abc import Callable, Sequence
-from typing import TYPE_CHECKING, Any, overload
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, overload
 from ..color import convert, rgb
 from ..core import configs, containers
 from . import controllers
 import tkinter
+from collections.abc import Callable
+from typing import Any
 from ..core import virtual
 
 class Animation:

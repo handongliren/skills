@@ -3,9 +3,10 @@
 from __future__ import annotations
 import math
 import warnings
-from typing import Any, Literal
+from typing import TYPE_CHECKING
 from typing_extensions import override
 from ..core import virtual
+from typing import Any, Literal
 
 class Line(virtual.Shape):
     """Create a line for a widget."""

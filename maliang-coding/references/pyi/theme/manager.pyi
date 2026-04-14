@@ -13,14 +13,15 @@ import sys
 import threading
 import traceback
 import warnings
-from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING
 from ..core import configs
 from ..toolbox import utility
 import pywinstyles
 import hPyT
 import win32material
 import tkinter
+from collections.abc import Callable
+from typing import Any, Literal
 import darkdetect
 import darkdetect._windows_detect
 import darkdetect

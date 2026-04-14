@@ -5,9 +5,10 @@ import bisect
 import itertools
 import tkinter.font
 import warnings
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING
 from typing_extensions import override
 from ..core import virtual
+from typing import Any, Literal
 from ..core import containers
 
 class _CanvasTextProxy:
