@@ -1,0 +1,279 @@
+#!/usr/bin/env python3
+"""
+生成正确的.pyi文件，确保格式正确
+"""
+
+import ast
+import os
+from pathlib import Path
+from typing import List, Optional
+
+def extract_type_info_proper(file_path: str) -> str:
+    """
+    提取类型信息，生成正确的.pyi格式
+    """
+
+    with open(file_path, 'r', encoding='utf-8') as f:
+        source = f.read()
+    
+    try:
+        tree = ast.parse(source)
+    except SyntaxError as e:
+        print(f"  语法错误: {e}")
+        return f'"""{os.path.basename(file_path)}的类型存根文件（解析错误）"""\n'
+    
+    lines = []
+    
+    # 提取模块级docstring
+    module_docstring = ""
+    if (tree.body and isinstance(tree.body[0], ast.Expr) and 
+        isinstance(tree.body[0].value, ast.Constant) and
+        isinstance(tree.body[0].value.value, str)):
+        module_docstring = tree.body[0].value.value
+    
+    if module_docstring:
+        lines.append(f'"""{module_docstring}"""')
+    else:
+        lines.append(f'"""{os.path.basename(file_path)}的类型存根文件"""')
+    lines.append('')
+    
+    # 处理导入
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                lines.append(f"import {alias.name}")
+        elif isinstance(node, ast.ImportFrom):
+            module = node.module or ''
+            if node.level > 0:
+                module = '.' * node.level + module
+            if node.names[0].name == '*':
+                lines.append(f"from {module} import *")
+            else:
+                names = ', '.join(alias.name for alias in node.names)
+                lines.append(f"from {module} import {names}")
+    
+    # 添加空行（如果有导入）
+    if any(line.startswith('import ') or line.startswith('from ') for line in lines[2:]):
+        lines.append('')
+    
+    # 处理类定义
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ClassDef):
+            class_lines = []
+            
+            # 类定义
+            bases = []
+            for base in node.bases:
+                try:
+                    bases.append(ast.unparse(base))
+                except:
+                    bases.append("Any")
+            
+            class_def = f"class {node.name}"
+            if bases:
+                class_def += f"({', '.join(bases)})"
+            class_def += ":"
+            class_lines.append(class_def)
+            
+            # 类docstring
+            docstring = extract_docstring(node)
+            if docstring:
+                # 添加docstring，确保后面有空行
+                class_lines.append(f'    """{docstring.strip()}"""')
+                class_lines.append('')
+            
+            # 类属性
+            for item in node.body:
+                if isinstance(item, ast.AnnAssign):
+                    # 带类型注解的属性
+                    try:
+                        target = ast.unparse(item.target)
+                        annotation = ast.unparse(item.annotation)
+                        class_lines.append(f"    {target}: {annotation}")
+                    except:
+                        pass
+                
+                elif isinstance(item, ast.Assign):
+                    # 不带类型注解的属性
+                    for target in item.targets:
+                        if isinstance(target, ast.Name):
+                            try:
+                                value = ast.unparse(item.value)
+                                class_lines.append(f"    {target.id} = {value}")
+                            except:
+                                class_lines.append(f"    {target.id} = ...")
+            
+            # 类方法
+            methods_added = False
+            for item in node.body:
+                if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    # 跳过私有方法（但不是特殊方法）
+                    if item.name.startswith('_') and not (item.name.startswith('__') and item.name.endswith('__')):
+                        continue
+                    
+                    # 检查装饰器
+                    decorators = []
+                    for decorator in item.decorator_list:
+                        try:
+                            decorator_str = ast.unparse(decorator)
+                            if decorator_str == "classmethod":
+                                decorators.append("@classmethod")
+                            elif decorator_str == "staticmethod":
+                                decorators.append("@staticmethod")
+                            else:
+                                decorators.append(f"@{decorator_str}")
+                        except:
+                            pass
+                    
+                    # 方法签名
+                    try:
+                        # 提取方法定义行
+                        if isinstance(item, ast.AsyncFunctionDef):
+                            def_line = f"async def {item.name}"
+                        else:
+                            def_line = f"def {item.name}"
+                        
+                        # 参数
+                        args = []
+                        for arg in item.args.posonlyargs:
+                            args.append(format_arg(arg))
+                        for arg in item.args.args:
+                            args.append(format_arg(arg))
+                        if item.args.vararg:
+                            args.append(f"*{format_arg(item.args.vararg)}")
+                        for arg in item.args.kwonlyargs:
+                            args.append(format_arg(arg))
+                        if item.args.kwarg:
+                            args.append(f"**{format_arg(item.args.kwarg)}")
+                        
+                        def_line += f"({', '.join(args)})"
+                        
+                        # 返回类型
+                        if item.returns:
+                            returns = ast.unparse(item.returns)
+                            def_line += f" -> {returns}"
+                        
+                        # 添加装饰器和方法
+                        for decorator in decorators:
+                            class_lines.append(f"    {decorator}")
+                        class_lines.append(f"    {def_line}: ...")
+                        methods_added = True
+                        
+                    except:
+                        pass
+            
+            # 如果没有内容，添加省略号
+            if len(class_lines) == 1 or (len(class_lines) == 2 and class_lines[1] == ''):
+                class_lines.append("    ...")
+            
+            lines.extend(class_lines)
+            lines.append('')
+    
+    # 处理模块级函数
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            # 检查是否在类中
+            in_class = False
+            for parent in ast.walk(tree):
+                if isinstance(parent, ast.ClassDef) and node in parent.body:
+                    in_class = True
+                    break
+            
+            if not in_class and not node.name.startswith('_'):
+                try:
+                    # 函数签名
+                    if isinstance(node, ast.AsyncFunctionDef):
+                        def_line = f"async def {node.name}"
+                    else:
+                        def_line = f"def {node.name}"
+                    
+                    # 参数
+                    args = []
+                    for arg in node.args.posonlyargs:
+                        args.append(format_arg(arg))
+                    for arg in node.args.args:
+                        args.append(format_arg(arg))
+                    if node.args.vararg:
+                        args.append(f"*{format_arg(node.args.vararg)}")
+                    for arg in node.args.kwonlyargs:
+                        args.append(format_arg(arg))
+                    if node.args.kwarg:
+                        args.append(f"**{format_arg(node.args.kwarg)}")
+                    
+                    def_line += f"({', '.join(args)})"
+                    
+                    # 返回类型
+                    if node.returns:
+                        returns = ast.unparse(node.returns)
+                        def_line += f" -> {returns}"
+                    
+                    lines.append(f"{def_line}: ...")
+                    lines.append('')
+                    
+                except:
+                    pass
+    
+    return '\n'.join(lines)
+
+def extract_docstring(node) -> str:
+    """
+    提取节点的docstring
+    """
+
+    if (node.body and isinstance(node.body[0], ast.Expr) and 
+        isinstance(node.body[0].value, ast.Constant) and
+        isinstance(node.body[0].value.value, str)):
+        return node.body[0].value.value
+    return ""
+
+def format_arg(arg) -> str:
+    """
+    格式化参数
+    """
+
+    try:
+        return ast.unparse(arg)
+    except:
+        return arg.arg if hasattr(arg, 'arg') else str(arg)
+
+def generate_all_pyi_proper():
+    """
+    生成所有正确的.pyi文件
+    """
+    
+    maliang_dir = Path("maliang/maliang")
+    output_dir = Path("pyi")
+    
+    # 确保输出目录存在
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # 查找所有Python文件
+    python_files = list(maliang_dir.rglob("*.py"))
+    
+    print(f"找到 {len(python_files)} 个Python文件")
+    
+    for py_file in python_files:
+        try:
+            # 生成.pyi内容
+            pyi_content = extract_type_info_proper(str(py_file))
+            
+            # 确定输出路径
+            rel_path = py_file.relative_to(maliang_dir)
+            output_path = output_dir / rel_path.with_suffix('.pyi')
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            # 写入文件
+            with open(output_path, 'w', encoding='utf-8') as f:
+                f.write(pyi_content)
+            
+            print(f"已生成: {output_path}")
+            
+        except Exception as e:
+            print(f"错误处理文件 {py_file}: {e}")
+            import traceback
+            traceback.print_exc()
+    
+    print("\n完成!")
+
+if __name__ == "__main__":
+    generate_all_pyi_proper()
