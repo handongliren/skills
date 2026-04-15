@@ -1,4 +1,5 @@
-"""A subpackage of ``maliang`` that provides animation-related features.
+"""
+A subpackage of ``maliang`` that provides animation-related features.
 
 A highly customizable animation base class and related subclasses are provided,
 as well as highly customizable control functions. In addition, control

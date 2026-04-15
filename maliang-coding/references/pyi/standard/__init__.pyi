@@ -1,4 +1,6 @@
-"""All standard things."""
+"""
+All standard things.
+"""
 
 from .dialogs import *
 from .widgets import *

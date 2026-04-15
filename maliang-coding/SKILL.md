@@ -224,4 +224,4 @@ root.mainloop()
 
 **Remember**: Always read the pyi files first to ensure syntactically correct code. The pyi files contain the authoritative function signatures and docstrings that describe each component's purpose and usage.
 
-> Good luck in your coding!
+> Good luck!

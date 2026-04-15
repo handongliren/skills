@@ -1,4 +1,6 @@
-"""All standard ``Feature`` classes."""
+"""
+All standard ``Feature`` classes.
+"""
 
 from __future__ import annotations
 from typing import TYPE_CHECKING
@@ -12,65 +14,108 @@ from collections.abc import Callable
 from typing import Any
 
 class TextFeature(virtual.Feature):
-    """Feature of Text."""
+    """
+    Feature of Text.
+    """
 
 
 class ImageFeature(virtual.Feature):
-    """Feature of Image."""
+    """
+    Feature of Image.
+    """
 
 
 class LabelFeature(virtual.Feature):
-    """Feature of Label."""
+    """
+    Feature of Label.
+    """
 
 
 class ButtonFeature(virtual.Feature):
-    """Feature of Button."""
+    """
+    Feature of Button.
+    """
 
-    def __init__(self, widget: virtual.Widget, command: Callable | None, args: tuple) -> None: ...
+    def __init__(self, widget: virtual.Widget, command: Callable | None, args: tuple) -> None:
+        """
+        Args:
+                    widget: parent widget.
+                    command: callback function.
+                    args: arguments of callback function.
+        """
 
 class Underline(ButtonFeature):
-    """Feature of underline."""
+    """
+    Feature of underline.
+    """
 
 
 class Highlight(ButtonFeature):
-    """Feature of highlight."""
+    """
+    Feature of highlight.
+    """
 
 
 class SwitchFeature(ButtonFeature):
-    """Feature of Switch."""
+    """
+    Feature of Switch.
+    """
 
 
 class ToggleButtonFeature(ButtonFeature):
-    """Feature of ToggleButton."""
+    """
+    Feature of ToggleButton.
+    """
 
 
 class CheckBoxFeature(ToggleButtonFeature):
-    """Feature of CheckButton."""
+    """
+    Feature of CheckButton.
+    """
 
 
 class RadioBoxFeature(ButtonFeature):
-    """Feature of RadioButton."""
+    """
+    Feature of RadioButton.
+    """
 
 
 class ProgressBarFeature(LabelFeature):
-    """Feature of ProgressBar."""
+    """
+    Feature of ProgressBar.
+    """
 
 
 class InputBoxFeature(ButtonFeature):
-    """Feature of input box."""
+    """
+    Feature of input box.
+    """
 
-    def __init__(self, widget: virtual.Widget, command: Callable[..., Any] | None, args: tuple) -> None: ...
+    def __init__(self, widget: virtual.Widget, command: Callable[..., Any] | None, args: tuple) -> None:
+        ...
 
 class SliderFeature(virtual.Feature):
-    """Feature of Slider."""
+    """
+    Feature of Slider.
+    """
 
-    def __init__(self, widget: virtual.Widget) -> None: ...
+    def __init__(self, widget: virtual.Widget) -> None:
+        ...
 
 class SegmentedButtonFeature(virtual.Feature):
-    """Feature of SegmentedButton."""
+    """
+    Feature of SegmentedButton.
+    """
 
 
 class SpinBoxFeature(virtual.Feature):
-    """Feature of SpinBox."""
+    """
+    Feature of SpinBox.
+    """
 
-    def __init__(self, widget: virtual.Widget, command: Callable[[bool], Any] | None) -> None: ...
+    def __init__(self, widget: virtual.Widget, command: Callable[[bool], Any] | None) -> None:
+        """
+        Args:
+                    widget: parent widget.
+                    command: callback function.
+        """

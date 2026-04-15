@@ -33,9 +33,9 @@ def extract_type_info_proper(file_path: str) -> str:
         module_docstring = tree.body[0].value.value
     
     if module_docstring:
-        lines.append(f'"""{module_docstring}"""')
+        lines.append(format_docstring(module_docstring, 0))
     else:
-        lines.append(f'"""{os.path.basename(file_path)}的类型存根文件"""')
+        lines.append(format_docstring(f"{os.path.basename(file_path)}的类型存根文件", 0))
     lines.append('')
     
     # 处理导入
@@ -80,7 +80,7 @@ def extract_type_info_proper(file_path: str) -> str:
             docstring = extract_docstring(node)
             if docstring:
                 # 添加docstring，确保后面有空行
-                class_lines.append(f'    """{docstring.strip()}"""')
+                class_lines.append(format_docstring(docstring, 1))
                 class_lines.append('')
             
             # 类属性
@@ -154,10 +154,17 @@ def extract_type_info_proper(file_path: str) -> str:
                             returns = ast.unparse(item.returns)
                             def_line += f" -> {returns}"
                         
+                        # 提取方法docstring
+                        method_docstring = extract_docstring(item)
+                        
                         # 添加装饰器和方法
                         for decorator in decorators:
                             class_lines.append(f"    {decorator}")
-                        class_lines.append(f"    {def_line}: ...")
+                        class_lines.append(f"    {def_line}:")
+                        if method_docstring:
+                            class_lines.append(format_docstring(method_docstring, 2))
+                        else:
+                            class_lines.append("        ...")
                         methods_added = True
                         
                     except:
@@ -208,7 +215,14 @@ def extract_type_info_proper(file_path: str) -> str:
                         returns = ast.unparse(node.returns)
                         def_line += f" -> {returns}"
                     
-                    lines.append(f"{def_line}: ...")
+                    # 提取函数docstring
+                    func_docstring = extract_docstring(node)
+                    
+                    lines.append(f"{def_line}:")
+                    if func_docstring:
+                        lines.append(format_docstring(func_docstring, 1))
+                    else:
+                        lines.append("    ...")
                     lines.append('')
                     
                 except:
@@ -227,6 +241,27 @@ def extract_docstring(node) -> str:
         return node.body[0].value.value
     return ""
 
+def format_docstring(docstring: str, indent_level: int = 0) -> str:
+    """
+    格式化docstring为多行格式
+    """
+    if not docstring:
+        return ""
+    
+    indent = " " * (indent_level * 4)
+    lines = docstring.strip().split('\n')
+    
+    # 如果只有一行，直接返回多行格式
+    if len(lines) == 1:
+        return f'{indent}"""\n{indent}{lines[0]}\n{indent}"""'
+    
+    # 多行docstring
+    result = [f'{indent}"""']
+    for line in lines:
+        result.append(f'{indent}{line}')
+    result.append(f'{indent}"""')
+    return '\n'.join(result)
+
 def format_arg(arg) -> str:
     """
     格式化参数
@@ -242,14 +277,14 @@ def generate_all_pyi_proper():
     生成所有正确的.pyi文件
     """
     
-    maliang_dir = Path(sys.executable).parent / "Lib" / "site-packages" / "maliang"
-    output_dir = Path("maliang-coding/references/pyi")
+    package_dir = Path(sys.executable).parent / "Lib" / "site-packages" / "maliang"
+    output_dir = Path("references/pyi")
     
     # 确保输出目录存在
     output_dir.mkdir(parents=True, exist_ok=True)
     
     # 查找所有Python文件
-    python_files = list(maliang_dir.rglob("*.py"))
+    python_files = list(package_dir.rglob("*.py"))
     
     print(f"找到 {len(python_files)} 个Python文件")
     
@@ -259,7 +294,7 @@ def generate_all_pyi_proper():
             pyi_content = extract_type_info_proper(str(py_file))
             
             # 确定输出路径
-            rel_path = py_file.relative_to(maliang_dir)
+            rel_path = py_file.relative_to(package_dir)
             output_path = output_dir / rel_path.with_suffix('.pyi')
             output_path.parent.mkdir(parents=True, exist_ok=True)
             

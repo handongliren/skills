@@ -1,3 +1,5 @@
-"""Extension package of `maliang` for supporting table."""
+"""
+Extension package of `maliang` for supporting table.
+"""
 
 from .main import *

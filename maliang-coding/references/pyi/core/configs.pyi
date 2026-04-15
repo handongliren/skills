@@ -1,4 +1,5 @@
-"""All global configuration options.
+"""
+All global configuration options.
 
 Some options are read-only, but most of them can be changed, and once changed,
 they will take effect globally for the program. Some changes take effect
@@ -15,22 +16,32 @@ from typing import TYPE_CHECKING
 from typing import Any, Final, Literal
 
 class _DefaultRootDescriptor:
-    """A simple descriptor for ``tkinter._default_root``."""
+    """
+    A simple descriptor for ``tkinter._default_root``.
+    """
 
-    def __get__(self, *args: Any, **kwargs: Any) -> tkinter.Tk: ...
+    def __get__(self, *args: Any, **kwargs: Any) -> tkinter.Tk:
+        """
+        Returns the current default root.
+        
+                In some cases, the method also returns ``tkinter.Tk`` and ``None``, but
+                this can happen if the usage is not recommended.
+        """
 
 class Env:
-    """Configurations for default environment values.
-
-    Attributes:
-        system (str): The system of environment, such as ``"Windows10"``,
-            ``"Windows11"``, ``"Linux"``, ``"Darwin"`` (macOS).
-        theme (Literal["light", "dark"]): The theme of the application.
-        gradient_animation (bool): Whether to enable gradient animation for
-            widgets that support it by default.
-        auto_update (bool): Whether to check for updates automatically on
-            startup.
-        root (tkinter.Tk): The current default root window. It is READ-ONLY."""
+    """
+    Configurations for default environment values.
+    
+        Attributes:
+            system (str): The system of environment, such as ``"Windows10"``,
+                ``"Windows11"``, ``"Linux"``, ``"Darwin"`` (macOS).
+            theme (Literal["light", "dark"]): The theme of the application.
+            gradient_animation (bool): Whether to enable gradient animation for
+                widgets that support it by default.
+            auto_update (bool): Whether to check for updates automatically on
+                startup.
+            root (tkinter.Tk): The current default root window. It is READ-ONLY.
+    """
 
     system: str
     theme: Literal['light', 'dark']
@@ -38,29 +49,48 @@ class Env:
     auto_update: bool
     root = _DefaultRootDescriptor()
     @classmethod
-    def reset(cls) -> None: ...
+    def reset(cls) -> None:
+        """
+        Reset all configuration options.
+        """
     @staticmethod
-    def get_default_system() -> str: ...
+    def get_default_system() -> str:
+        """
+        Get the system of environment.
+        """
 
 class Font:
-    """Configurations for default font.
-    
-    Attributes:
-        family (str): The default font family.
-        size (int): The default font size, negative value means size in pixels."""
+    """
+    Configurations for default font.
+        
+        Attributes:
+            family (str): The default font family.
+            size (int): The default font size, negative value means size in pixels.
+    """
 
     family: str
     size: int
     @classmethod
-    def reset(cls) -> None: ...
+    def reset(cls) -> None:
+        """
+        Reset all configuration options.
+        """
     @staticmethod
-    def get_default_family() -> str: ...
+    def get_default_family() -> str:
+        """
+        Get the default font family.
+        """
 
 class Constant:
-    """All Constants."""
+    """
+    All Constants.
+    """
 
     GOLDEN_RATIO: Final[float]
     PREDEFINED_EVENTS: Final[tuple[str, ...]]
     PREDEFINED_VIRTUAL_EVENTS: Final[tuple[str, ...]]
 
-def reset() -> None: ...
+def reset() -> None:
+    """
+    Reset all configuration options.
+    """
