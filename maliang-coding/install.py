@@ -5,7 +5,6 @@ import sys
 
 base_dir = pathlib.Path(__file__).parent.resolve()
 
-os.chdir("maliang-coding")
 os.system('call "' + sys.executable + '" "' + str(base_dir / "generate_pyi.py") + '"')
 shutil.copytree(
     base_dir, 

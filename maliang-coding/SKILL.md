@@ -222,6 +222,6 @@ root.mainloop()
 
 ---
 
-**Remember**: Always read the pyi files first to ensure syntactically correct code. The pyi files contain the authoritative function signatures and docstrings that describe each component's purpose and usage.
+**Remember**: Always read the pyi files first to ensure syntactically correct code. The pyi files contain the authoritative function signatures and docstrings that describe each component's purpose and usage. When you find that the pyi files are outdated, run `generate_pyi.py` to regenerate the pyi files.
 
 > Good luck!
