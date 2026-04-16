@@ -7,20 +7,51 @@ import os
 import sys
 from pathlib import Path
 
-def extractTypeInfo(file_path: str) -> str:
+def generatePyiFile(source: str) -> str:
     """
-    提取类型信息，生成正确的.pyi格式
+    生成单个.pyi文件的内容
     """
-
-    with open(file_path, 'r', encoding='utf-8') as f:
-        source = f.read()
+    
+    # 内部辅助函数：提取docstring
+    def extractDocstring(node) -> str:
+        if (node.body and isinstance(node.body[0], ast.Expr) and 
+            isinstance(node.body[0].value, ast.Constant) and
+            isinstance(node.body[0].value.value, str)):
+            return node.body[0].value.value
+        return ""
+    
+    # 内部辅助函数：格式化docstring
+    def formatDocstring(docstring: str, indent_level: int = 0) -> str:
+        if not docstring:
+            return ""
+        
+        indent = " " * (indent_level * 4)
+        lines = docstring.strip().split('\n')
+        
+        # 如果只有一行，直接返回多行格式
+        if len(lines) == 1:
+            return f'{indent}"""\n{indent}{lines[0]}\n{indent}"""'
+        
+        # 多行docstring
+        result = [f'{indent}"""']
+        for line in lines:
+            result.append(f'{indent}{line}')
+        result.append(f'{indent}"""')
+        return '\n'.join(result)
+    
+    # 内部辅助函数：格式化参数
+    def formatArg(arg) -> str:
+        try:
+            return ast.unparse(arg)
+        except:
+            return arg.arg if hasattr(arg, 'arg') else str(arg)
     
     try:
         tree = ast.parse(source)
     except SyntaxError as e:
         print(f"  语法错误: {e}")
-        return f'"""{os.path.basename(file_path)}的类型存根文件（解析错误）"""\n'
-    
+        return '"""类型存根文件解析错误"""\n'
+
     lines = []
     
     # 提取模块级docstring
@@ -33,7 +64,7 @@ def extractTypeInfo(file_path: str) -> str:
     if module_docstring:
         lines.append(formatDocstring(module_docstring, 0))
     else:
-        lines.append(formatDocstring(f"{os.path.basename(file_path)}的类型存根文件", 0))
+        lines.append(formatDocstring(f"存根文件", 0))
     lines.append('')
     
     # 处理导入
@@ -228,48 +259,6 @@ def extractTypeInfo(file_path: str) -> str:
     
     return '\n'.join(lines)
 
-def extractDocstring(node) -> str:
-    """
-    提取节点的docstring
-    """
-
-    if (node.body and isinstance(node.body[0], ast.Expr) and 
-        isinstance(node.body[0].value, ast.Constant) and
-        isinstance(node.body[0].value.value, str)):
-        return node.body[0].value.value
-    return ""
-
-def formatDocstring(docstring: str, indent_level: int = 0) -> str:
-    """
-    格式化docstring为多行格式
-    """
-    if not docstring:
-        return ""
-    
-    indent = " " * (indent_level * 4)
-    lines = docstring.strip().split('\n')
-    
-    # 如果只有一行，直接返回多行格式
-    if len(lines) == 1:
-        return f'{indent}"""\n{indent}{lines[0]}\n{indent}"""'
-    
-    # 多行docstring
-    result = [f'{indent}"""']
-    for line in lines:
-        result.append(f'{indent}{line}')
-    result.append(f'{indent}"""')
-    return '\n'.join(result)
-
-def formatArg(arg) -> str:
-    """
-    格式化参数
-    """
-
-    try:
-        return ast.unparse(arg)
-    except:
-        return arg.arg if hasattr(arg, 'arg') else str(arg)
-
 def generatePyi():
     """
     生成所有正确的.pyi文件
@@ -290,7 +279,7 @@ def generatePyi():
     for py_file in python_files:
         try:
             # 生成.pyi内容
-            pyi_content = extractTypeInfo(str(py_file))
+            pyi_content = generatePyiFile(py_file.read_text(encoding = "utf-8"))
             
             # 确定输出路径
             rel_path = py_file.relative_to(package_dir)
@@ -298,8 +287,7 @@ def generatePyi():
             output_path.parent.mkdir(parents=True, exist_ok=True)
             
             # 写入文件
-            with open(output_path, 'w', encoding='utf-8') as f:
-                f.write(pyi_content)
+            output_path.write_text(pyi_content, encoding = "utf-8")
             
             print(f"已生成: {output_path}")
             
