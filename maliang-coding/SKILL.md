@@ -182,9 +182,9 @@ Before finalizing maliang code, verify:
 ## Troubleshooting Tips
 
 If code fails, check:
-1. **Import errors**: Ensure maliang is installed (`pip install maliang`)
+1. **Import errors**: Ensure maliang is installed (`pip install maliang`), when there is something wrong with PyPi, change the mirror
 2. **Type errors**: Verify parameter types match pyi signatures
-3. **Hierarchy errors**: Canvas must be created before widgets
+3. **Hierarchy errors**: Canvas must be created before widgets and placed on master widget
 4. **Position errors**: Positions are relative to master Canvas
 5. **Theme errors**: Call `theme()` on Tk/Toplevel/Canvas, not on widgets
 
@@ -222,6 +222,6 @@ root.mainloop()
 
 ---
 
-**Remember**: Always read the pyi files first to ensure syntactically correct code. The pyi files contain the authoritative function signatures and docstrings that describe each component's purpose and usage. When you find that the pyi files are outdated, run `generate_pyi.py` to regenerate the pyi files.
+**Remember**: Always read the pyi files first to ensure syntactically correct code. The pyi files contain the authoritative function signatures and docstrings that describe each component's purpose and usage. When you find that the pyi files are improper, run `generate_pyi.py` to regenerate the pyi files.
 
 > Good luck!

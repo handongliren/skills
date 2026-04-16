@@ -5,7 +5,7 @@
 import ast
 import os
 import sys
-from pathlib import Path
+import pathlib
 
 def extractDocstring(node) -> str:
     """
@@ -67,9 +67,9 @@ def formatArg(arg) -> str:
     except:
         return arg.arg if hasattr(arg, 'arg') else str(arg)
 
-def generatePyiFile(source: str) -> str:
+def generatePyi(source: str) -> str:
     """
-    生成单个.pyi文件的内容。
+    生成.pyi文件的内容。
     
     :param source: Python源代码字符串
     :type source: str
@@ -287,10 +287,45 @@ def generatePyiFile(source: str) -> str:
                     
                 except:
                     pass
-    
+
     return '\n'.join(lines)
 
-def generatePyi():
+def generatePyiByFile(source: pathlib.Path | str, target: pathlib.Path | str, *, encoding: str = "utf-8"):
+    """
+    通过文件生成.pyi。
+
+    :param source: 源文件
+    :type source: pathlib.Path | str
+    :param target: 目标文件
+    :type target: pathlib.Path | str
+    :param encoding: 文件编码
+    :type encoding: str
+    """
+
+    source = pathlib.Path(source)
+    target = pathlib.Path(target)
+    target.write_text(source.read_text(encoding = encoding), encoding = encoding)
+
+def generatePyiByDir(source: pathlib.Path | str, target: pathlib.Path | str, *, encoding: str = "utf-8", existed_pyi_copy = True) -> None:
+    """
+    通过目录生成.pyi。
+
+    :param source: 源目录
+    :type source: pathlib.Path | str
+    :param target: 目标目录
+    :type target: pathlib.Path
+    :param encoding: 文件编码
+    :type encoding: str
+    :param existed_pyi_copy: 是否复制已存在的.pyi文件
+    :type existed_pyi_copy: bool
+    """
+
+    source = pathlib.Path(source)
+    target = pathlib.Path(target)
+    target.mkdir(parents = True, exist_ok = True)
+    py_files = list(source.rglob("*.py"))
+
+def generate():
     """
     生成所有正确的.pyi文件。
     
@@ -298,8 +333,8 @@ def generatePyi():
     :rtype: None
     """
     
-    base_dir = Path(__file__).parent.resolve()
-    package_dir = Path(sys.executable).parent / "Lib" / "site-packages" / "maliang"
+    base_dir = pathlib.Path(__file__).parent.resolve()
+    package_dir = pathlib.Path(sys.executable).parent / "Lib" / "site-packages" / "maliang"
     output_dir = base_dir / "references/pyi"
     
     # 确保输出目录存在
@@ -313,7 +348,7 @@ def generatePyi():
     for py_file in python_files:
         try:
             # 生成.pyi内容
-            pyi_content = generatePyiFile(py_file.read_text(encoding = "utf-8"))
+            pyi_content = generatePyi(py_file.read_text(encoding = "utf-8"))
             
             # 确定输出路径
             rel_path = py_file.relative_to(package_dir)
@@ -333,4 +368,4 @@ def generatePyi():
     print("\n完成!")
 
 if __name__ == "__main__":
-    generatePyi()
+    generate()
