@@ -6,7 +6,7 @@ import generate_pyi
 
 base_dir = pathlib.Path(__file__).parent.resolve()
 
-os.system('call "' + sys.executable + '" "' + str(base_dir / "generate_pyi.py") + '"')
+generate_pyi.generatePyi()
 shutil.copytree(
     base_dir, 
     base_dir.home() / ".agents" / "skills" / "maliang-coding", 

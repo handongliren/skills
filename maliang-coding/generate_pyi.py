@@ -7,44 +7,75 @@ import os
 import sys
 from pathlib import Path
 
-def generatePyiFile(source: str) -> str:
+def extractDocstring(node) -> str:
     """
-    生成单个.pyi文件的内容
-    """
+    提取节点的docstring。
     
-    # 内部辅助函数：提取docstring
-    def extractDocstring(node) -> str:
-        if (node.body and isinstance(node.body[0], ast.Expr) and 
-            isinstance(node.body[0].value, ast.Constant) and
-            isinstance(node.body[0].value.value, str)):
-            return node.body[0].value.value
+    :param node: AST节点
+    :type node: ast.AST
+    :return: 节点的docstring，如果没有则返回空字符串
+    :rtype: str
+    """
+
+    if (node.body and isinstance(node.body[0], ast.Expr) and 
+        isinstance(node.body[0].value, ast.Constant) and
+        isinstance(node.body[0].value.value, str)):
+        return node.body[0].value.value
+    return ""
+
+def formatDocstring(docstring: str, indent_level: int = 0) -> str:
+    """
+    格式化docstring为多行格式。
+    
+    :param docstring: 要格式化的docstring文本
+    :type docstring: str
+    :param indent_level: 缩进级别，0表示无缩进，1表示4空格缩进，依此类推
+    :type indent_level: int, optional
+    :return: 格式化后的多行docstring
+    :rtype: str
+    """
+
+    if not docstring:
         return ""
     
-    # 内部辅助函数：格式化docstring
-    def formatDocstring(docstring: str, indent_level: int = 0) -> str:
-        if not docstring:
-            return ""
-        
-        indent = " " * (indent_level * 4)
-        lines = docstring.strip().split('\n')
-        
-        # 如果只有一行，直接返回多行格式
-        if len(lines) == 1:
-            return f'{indent}"""\n{indent}{lines[0]}\n{indent}"""'
-        
-        # 多行docstring
-        result = [f'{indent}"""']
-        for line in lines:
-            result.append(f'{indent}{line}')
-        result.append(f'{indent}"""')
-        return '\n'.join(result)
+    indent = " " * (indent_level * 4)
+    lines = docstring.strip().split('\n')
     
-    # 内部辅助函数：格式化参数
-    def formatArg(arg) -> str:
-        try:
-            return ast.unparse(arg)
-        except:
-            return arg.arg if hasattr(arg, 'arg') else str(arg)
+    # 如果只有一行，直接返回多行格式
+    if len(lines) == 1:
+        return f'{indent}"""\n{indent}{lines[0]}\n{indent}"""'
+    
+    # 多行docstring
+    result = [f'{indent}"""']
+    for line in lines:
+        result.append(f'{indent}{line}')
+    result.append(f'{indent}"""')
+    return '\n'.join(result)
+
+def formatArg(arg) -> str:
+    """
+    格式化参数。
+    
+    :param arg: AST参数节点
+    :type arg: ast.arg
+    :return: 格式化后的参数字符串
+    :rtype: str
+    """
+    
+    try:
+        return ast.unparse(arg)
+    except:
+        return arg.arg if hasattr(arg, 'arg') else str(arg)
+
+def generatePyiFile(source: str) -> str:
+    """
+    生成单个.pyi文件的内容。
+    
+    :param source: Python源代码字符串
+    :type source: str
+    :return: 生成的.pyi文件内容
+    :rtype: str
+    """
     
     try:
         tree = ast.parse(source)
@@ -140,7 +171,7 @@ def generatePyiFile(source: str) -> str:
                     # 跳过私有方法（但不是特殊方法）
                     if item.name.startswith('_') and not (item.name.startswith('__') and item.name.endswith('__')):
                         continue
-                    
+
                     # 检查装饰器
                     decorators = []
                     for decorator in item.decorator_list:
@@ -205,7 +236,7 @@ def generatePyiFile(source: str) -> str:
             
             lines.extend(class_lines)
             lines.append('')
-    
+
     # 处理模块级函数
     for node in ast.walk(tree):
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
@@ -261,7 +292,10 @@ def generatePyiFile(source: str) -> str:
 
 def generatePyi():
     """
-    生成所有正确的.pyi文件
+    生成所有正确的.pyi文件。
+    
+    :return: 无返回值
+    :rtype: None
     """
     
     base_dir = Path(__file__).parent.resolve()
