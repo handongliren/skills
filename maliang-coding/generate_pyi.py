@@ -1,15 +1,13 @@
-#!/usr/bin/env python3
 """
-生成正确的.pyi文件，确保格式正确
+生成.pyi文件
 """
 
 import ast
 import os
 import sys
 from pathlib import Path
-from typing import List, Optional
 
-def extract_type_info_proper(file_path: str) -> str:
+def extractTypeInfo(file_path: str) -> str:
     """
     提取类型信息，生成正确的.pyi格式
     """
@@ -33,9 +31,9 @@ def extract_type_info_proper(file_path: str) -> str:
         module_docstring = tree.body[0].value.value
     
     if module_docstring:
-        lines.append(format_docstring(module_docstring, 0))
+        lines.append(formatDocstring(module_docstring, 0))
     else:
-        lines.append(format_docstring(f"{os.path.basename(file_path)}的类型存根文件", 0))
+        lines.append(formatDocstring(f"{os.path.basename(file_path)}的类型存根文件", 0))
     lines.append('')
     
     # 处理导入
@@ -77,10 +75,10 @@ def extract_type_info_proper(file_path: str) -> str:
             class_lines.append(class_def)
             
             # 类docstring
-            docstring = extract_docstring(node)
+            docstring = extractDocstring(node)
             if docstring:
                 # 添加docstring，确保后面有空行
-                class_lines.append(format_docstring(docstring, 1))
+                class_lines.append(formatDocstring(docstring, 1))
                 class_lines.append('')
             
             # 类属性
@@ -137,15 +135,15 @@ def extract_type_info_proper(file_path: str) -> str:
                         # 参数
                         args = []
                         for arg in item.args.posonlyargs:
-                            args.append(format_arg(arg))
+                            args.append(formatArg(arg))
                         for arg in item.args.args:
-                            args.append(format_arg(arg))
+                            args.append(formatArg(arg))
                         if item.args.vararg:
-                            args.append(f"*{format_arg(item.args.vararg)}")
+                            args.append(f"*{formatArg(item.args.vararg)}")
                         for arg in item.args.kwonlyargs:
-                            args.append(format_arg(arg))
+                            args.append(formatArg(arg))
                         if item.args.kwarg:
-                            args.append(f"**{format_arg(item.args.kwarg)}")
+                            args.append(f"**{formatArg(item.args.kwarg)}")
                         
                         def_line += f"({', '.join(args)})"
                         
@@ -155,14 +153,14 @@ def extract_type_info_proper(file_path: str) -> str:
                             def_line += f" -> {returns}"
                         
                         # 提取方法docstring
-                        method_docstring = extract_docstring(item)
+                        method_docstring = extractDocstring(item)
                         
                         # 添加装饰器和方法
                         for decorator in decorators:
                             class_lines.append(f"    {decorator}")
                         class_lines.append(f"    {def_line}:")
                         if method_docstring:
-                            class_lines.append(format_docstring(method_docstring, 2))
+                            class_lines.append(formatDocstring(method_docstring, 2))
                         else:
                             class_lines.append("        ...")
                         methods_added = True
@@ -198,15 +196,15 @@ def extract_type_info_proper(file_path: str) -> str:
                     # 参数
                     args = []
                     for arg in node.args.posonlyargs:
-                        args.append(format_arg(arg))
+                        args.append(formatArg(arg))
                     for arg in node.args.args:
-                        args.append(format_arg(arg))
+                        args.append(formatArg(arg))
                     if node.args.vararg:
-                        args.append(f"*{format_arg(node.args.vararg)}")
+                        args.append(f"*{formatArg(node.args.vararg)}")
                     for arg in node.args.kwonlyargs:
-                        args.append(format_arg(arg))
+                        args.append(formatArg(arg))
                     if node.args.kwarg:
-                        args.append(f"**{format_arg(node.args.kwarg)}")
+                        args.append(f"**{formatArg(node.args.kwarg)}")
                     
                     def_line += f"({', '.join(args)})"
                     
@@ -216,11 +214,11 @@ def extract_type_info_proper(file_path: str) -> str:
                         def_line += f" -> {returns}"
                     
                     # 提取函数docstring
-                    func_docstring = extract_docstring(node)
+                    func_docstring = extractDocstring(node)
                     
                     lines.append(f"{def_line}:")
                     if func_docstring:
-                        lines.append(format_docstring(func_docstring, 1))
+                        lines.append(formatDocstring(func_docstring, 1))
                     else:
                         lines.append("    ...")
                     lines.append('')
@@ -230,7 +228,7 @@ def extract_type_info_proper(file_path: str) -> str:
     
     return '\n'.join(lines)
 
-def extract_docstring(node) -> str:
+def extractDocstring(node) -> str:
     """
     提取节点的docstring
     """
@@ -241,7 +239,7 @@ def extract_docstring(node) -> str:
         return node.body[0].value.value
     return ""
 
-def format_docstring(docstring: str, indent_level: int = 0) -> str:
+def formatDocstring(docstring: str, indent_level: int = 0) -> str:
     """
     格式化docstring为多行格式
     """
@@ -262,7 +260,7 @@ def format_docstring(docstring: str, indent_level: int = 0) -> str:
     result.append(f'{indent}"""')
     return '\n'.join(result)
 
-def format_arg(arg) -> str:
+def formatArg(arg) -> str:
     """
     格式化参数
     """
@@ -272,7 +270,7 @@ def format_arg(arg) -> str:
     except:
         return arg.arg if hasattr(arg, 'arg') else str(arg)
 
-def generate_all_pyi_proper():
+def generatePyi():
     """
     生成所有正确的.pyi文件
     """
@@ -292,7 +290,7 @@ def generate_all_pyi_proper():
     for py_file in python_files:
         try:
             # 生成.pyi内容
-            pyi_content = extract_type_info_proper(str(py_file))
+            pyi_content = extractTypeInfo(str(py_file))
             
             # 确定输出路径
             rel_path = py_file.relative_to(package_dir)
@@ -313,4 +311,4 @@ def generate_all_pyi_proper():
     print("\n完成!")
 
 if __name__ == "__main__":
-    generate_all_pyi_proper()
+    generatePyi()
