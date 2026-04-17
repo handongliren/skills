@@ -3,7 +3,7 @@ import sys
 
 import pyi
 
-def generate():
+def generate() -> None:
     """
     生成所有正确的.pyi文件。
     

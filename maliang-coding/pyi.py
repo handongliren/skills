@@ -295,7 +295,7 @@ def generatePyi(source: str) -> str:
 
     return '\n'.join(lines)
 
-def generatePyiByFile(source: pathlib.Path | str, target: pathlib.Path | str, *, encoding: str = "utf-8"):
+def generatePyiByFile(source: pathlib.Path | str, target: pathlib.Path | str, *, encoding: str = "utf-8") -> None:
     """
     通过文件生成.pyi。
 
