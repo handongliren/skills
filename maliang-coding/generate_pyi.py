@@ -6,9 +6,6 @@ import pyi
 def generate() -> None:
     """
     生成所有正确的.pyi文件。
-    
-    :return: 无返回值
-    :rtype: None
     """
     
     base_dir = pathlib.Path(__file__).parent.resolve()

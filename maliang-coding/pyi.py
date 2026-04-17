@@ -12,7 +12,7 @@ import shutil
 import ast
 import pathlib
 
-def extractDocstring(node) -> str:
+def extractDocstring(node: ast.AST) -> str:
     """
     提取节点的docstring。
     
@@ -57,7 +57,7 @@ def formatDocstring(docstring: str, indent_level: int = 0) -> str:
     result.append(f'{indent}"""')
     return '\n'.join(result)
 
-def formatArg(arg) -> str:
+def formatArg(arg: ast.arg) -> str:
     """
     格式化参数。
     
