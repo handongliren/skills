@@ -2,6 +2,8 @@
 生成.pyi文件
 """
 
+import traceback
+import shutil
 import ast
 import os
 import sys
@@ -304,9 +306,9 @@ def generatePyiByFile(source: pathlib.Path | str, target: pathlib.Path | str, *,
 
     source = pathlib.Path(source)
     target = pathlib.Path(target)
-    target.write_text(source.read_text(encoding = encoding), encoding = encoding)
+    target.write_text(generatePyi(source.read_text(encoding = encoding)), encoding = encoding)
 
-def generatePyiByDir(source: pathlib.Path | str, target: pathlib.Path | str, *, encoding: str = "utf-8", existed_pyi_copy = True) -> None:
+def generatePyiByDir(source: pathlib.Path | str, target: pathlib.Path | str, *, encoding: str = "utf-8", copy_existed_pyi = True) -> None:
     """
     通过目录生成.pyi。
 
@@ -316,14 +318,32 @@ def generatePyiByDir(source: pathlib.Path | str, target: pathlib.Path | str, *, 
     :type target: pathlib.Path
     :param encoding: 文件编码
     :type encoding: str
-    :param existed_pyi_copy: 是否复制已存在的.pyi文件
-    :type existed_pyi_copy: bool
+    :param copy_existed_pyi: 是否复制已存在的.pyi文件
+    :type copy_existed_pyi: bool
     """
 
     source = pathlib.Path(source)
     target = pathlib.Path(target)
     target.mkdir(parents = True, exist_ok = True)
-    py_files = list(source.rglob("*.py"))
+    if copy_existed_pyi:
+        pyis = source.rglob("*.pyi")
+        for i in pyis:
+            try:
+                rel_path = i.relative_to(source)
+                output_path = target / rel_path.with_suffix('.pyi')
+                output_path.parent.mkdir(parents = True, exist_ok = True)
+                shutil.copy(i, output_path)
+            except Exception as error:
+                traceback.print_exception(error)
+    pys = source.rglob("*.py")
+    for i in pys:
+        try:
+            rel_path = i.relative_to(source)
+            output_path = target / rel_path.with_suffix('.pyi')
+            output_path.parent.mkdir(parents = True, exist_ok = True)
+            generatePyiByFile(i, output_path)
+        except Exception as error:
+            traceback.print_exception(error)
 
 def generate():
     """
@@ -336,36 +356,7 @@ def generate():
     base_dir = pathlib.Path(__file__).parent.resolve()
     package_dir = pathlib.Path(sys.executable).parent / "Lib" / "site-packages" / "maliang"
     output_dir = base_dir / "references/pyi"
-    
-    # 确保输出目录存在
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # 查找所有Python文件
-    python_files = list(package_dir.rglob("*.py"))
-    
-    print(f"找到 {len(python_files)} 个Python文件")
-    
-    for py_file in python_files:
-        try:
-            # 生成.pyi内容
-            pyi_content = generatePyi(py_file.read_text(encoding = "utf-8"))
-            
-            # 确定输出路径
-            rel_path = py_file.relative_to(package_dir)
-            output_path = output_dir / rel_path.with_suffix('.pyi')
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            
-            # 写入文件
-            output_path.write_text(pyi_content, encoding = "utf-8")
-            
-            print(f"已生成: {output_path}")
-            
-        except Exception as e:
-            print(f"错误处理文件 {py_file}: {e}")
-            import traceback
-            traceback.print_exc()
-    
-    print("\n完成!")
+    generatePyiByDir(package_dir, output_dir)
 
 if __name__ == "__main__":
     generate()
