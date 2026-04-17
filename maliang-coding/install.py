@@ -1,7 +1,5 @@
 import pathlib
 import shutil
-import os
-import sys
 import generate_pyi
 
 base_dir = pathlib.Path(__file__).parent.resolve()
