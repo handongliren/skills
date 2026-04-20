@@ -5,6 +5,13 @@ import generate_pyi
 base_dir = pathlib.Path(__file__).parent.resolve()
 
 def install(target: pathlib.Path | str) -> None:
+    """
+    安装。
+
+    :param target: 目标路径
+    :type target: pathlib.Path | str
+    """
+
     target = pathlib.Path(target)
     generate_pyi.generate()
     # 确保目标目录的父目录存在
