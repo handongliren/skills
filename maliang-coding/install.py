@@ -24,11 +24,11 @@ while True:
         "1. Claude Code\n" \
         "2. Cline\n" \
         "3. Cursor\n" \
-        "4. WindSurf\n" \
-        "5. Bloop\n" \
-        "6. Sourcegraph Cody\n" \
-        "7. Codeium\n" \
-        "8. Tabnine\n" \
+        "4. Qwen Code（通义千问）\n" \
+        "5. 通义灵码（阿里）\n" \
+        "6. DeepSeek Coder\n" \
+        "7. 智谱清言（智谱AI）\n" \
+        "8. 扣子（字节跳动）\n" \
         f"<{base_dir}>\n" \
         "$ "
     )
@@ -54,23 +54,23 @@ while True:
                 target = cursor_path / "skills" / "maliang-coding"
             install()
         case "4":
-            # WindSurf: ~/.windsurf/plugins
-            target = base_dir.home() / ".windsurf" / "plugins" / "maliang-coding"
+            # Qwen Code（通义千问）: ~/.qwen-code/skills
+            target = base_dir.home() / ".qwen-code" / "skills" / "maliang-coding"
             install()
         case "5":
-            # Bloop: ~/.bloop/skills
-            target = base_dir.home() / ".bloop" / "skills" / "maliang-coding"
+            # 通义灵码（阿里）: ~/.lingma/skills（基于阿里云产品命名）
+            target = base_dir.home() / ".lingma" / "skills" / "maliang-coding"
             install()
         case "6":
-            # Sourcegraph Cody: ~/.cody/skills
-            target = base_dir.home() / ".cody" / "skills" / "maliang-coding"
+            # DeepSeek Coder: ~/.deepseek/skills
+            target = base_dir.home() / ".deepseek" / "skills" / "maliang-coding"
             install()
         case "7":
-            # Codeium: ~/.codeium/skills
-            target = base_dir.home() / ".codeium" / "skills" / "maliang-coding"
+            # 智谱清言（智谱AI）: ~/.zhipu/skills
+            target = base_dir.home() / ".zhipu" / "skills" / "maliang-coding"
             install()
         case "8":
-            # Tabnine: ~/.tabnine/skills
-            target = base_dir.home() / ".tabnine" / "skills" / "maliang-coding"
+            # 扣子（字节跳动）: ~/.coze/skills
+            target = base_dir.home() / ".coze" / "skills" / "maliang-coding"
             install()
     print()
